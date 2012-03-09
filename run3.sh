@@ -70,4 +70,4 @@ done
 
 T="$(($(date +%s)-T))"
 printf "\nTime taken: %02dm %02ds\n" "$((T/60%60))" "$((T%60))"
-echo "Total disk usage: `du -ch data3/ | tail -n 1 | cut -f1`"
+echo "Total disk usage: `du -ch $dir/data/3/ | tail -n 1 | cut -f1`"
