@@ -4,7 +4,6 @@ orders=`seq 13`
 seqs="champer1 champer2 champer3 bruijn25 bruijn50 ford"
 generate=true
 
-
 T="$(date +%s)"
 dir=`dirname $0`
 if [ ! -e $dir/data/3 ]; then mkdir -p $dir/data/3; fi
@@ -46,11 +45,14 @@ do
 			set logscale x
 			set xtics ("3" 3, "3²" 9, "3³" 27, "3⁴" 81, "3⁵" 243, "3⁶" 729, "3⁷" 2187, "3⁸" 6561, "3⁹" 19683, "3¹⁰" 59049, "3¹¹" 177147, "3¹²" 531441)
 
+			# Note: This function binds a variable to the interval (0; min peak)
+			const(x) = (atan(x)+pi/2)/pi * 0.5 *`tail $dir/data/3/$seq-$i-peaks.dat -n 1 | cut -d' ' -f 2`
+			
 			a1 = b1 = c1 = 1
-			a2 = b2 = c2 = 0.0001
-			cotaS(n) = a1 * log(n)/n + a2
-			cotaM(n) = b1 * sqrt(log(n)/n) + b2
-			cotaL(n) = n<3?0: c1 * log(log(n)/log(3)) / (log(n)) + c2
+			a2 = b2 = c2 = -10
+			cotaS(n) = a1 * log(n)/n + const(a2)
+			cotaM(n) = b1 * sqrt(log(n)/n) + const(b2)
+			cotaL(n) = n<3?0: c1 * log(log(n)/log(3)) / (log(n)) + const(c2)
 			
 			fit cotaS(x) '$dir/data/3/$seq-$i-peaks.dat' via a1, a2
 			fit cotaM(x) '$dir/data/3/$seq-$i-peaks.dat' via b1, b2
@@ -59,9 +61,9 @@ do
 			set output "$dir/graphs/3/$seq/$seq-$i.png"
 			plot '$dir/data/3/$seq-$i.dat' title 'Discrepancia' with lines, \
 			     '$dir/data/3/$seq-$i-peaks.dat' title 'Peaks' with points pointtype 7, \
-			     cotaS(x) title 'Cota S' with lines, \
-			     cotaM(x) title 'Cota M' with lines, \
-			     cotaL(x) title 'Cota L' with lines
+			     cotaS(x) title 'log n/n' with lines, \
+			     cotaM(x) title 'sqrt (log n /n)' with lines, \
+			     cotaL(x) title 'log log n/log n' with lines
 		EOF
 	done
 	echo ""
