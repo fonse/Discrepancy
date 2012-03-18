@@ -46,7 +46,9 @@ do
 			set xtics ("3" 3, "3²" 9, "3³" 27, "3⁴" 81, "3⁵" 243, "3⁶" 729, "3⁷" 2187, "3⁸" 6561, "3⁹" 19683, "3¹⁰" 59049, "3¹¹" 177147, "3¹²" 531441)
 
 			# Note: This function binds a variable to the interval (0; min peak)
-			const(x) = (atan(x)+pi/2)/pi * 0.5 *`tail $dir/data/3/$seq-$i-peaks.dat -n 1 | cut -d' ' -f 2`
+			max = `tail $dir/data/3/$seq-$i-peaks.dat -n1 | awk '{ print $2 }'`
+			const(x) = (atan(x)+pi/2)/pi * 0.5 * max
+			const(x) = max * 1.1
 			
 			a1 = b1 = c1 = 1
 			a2 = b2 = c2 = -10
@@ -54,9 +56,9 @@ do
 			cotaM(n) = b1 * sqrt(log(n)/n) + const(b2)
 			cotaL(n) = n<3?0: c1 * log(log(n)/log(3)) / (log(n)) + const(c2)
 			
-			fit cotaS(x) '$dir/data/3/$seq-$i-peaks.dat' via a1, a2
-			fit cotaM(x) '$dir/data/3/$seq-$i-peaks.dat' via b1, b2
-			fit cotaL(x) '$dir/data/3/$seq-$i-peaks.dat' via c1, c2
+			fit cotaS(x) '$dir/data/3/$seq-$i-peaks.dat' via a1
+			fit cotaM(x) '$dir/data/3/$seq-$i-peaks.dat' via b1
+			fit cotaL(x) '$dir/data/3/$seq-$i-peaks.dat' via c1
 			
 			set output "$dir/graphs/3/$seq/$seq-$i.png"
 			plot '$dir/data/3/$seq-$i.dat' title 'Discrepancia' with lines, \
@@ -72,4 +74,4 @@ done
 
 T="$(($(date +%s)-T))"
 printf "\nTime taken: %02dm %02ds\n" "$((T/60%60))" "$((T%60))"
-echo "Total disk usage: `du -ch $dir/data/3/ | tail -n 1 | cut -f1`"
+echo "Total disk usage: `du -ch $dir/data/3/ | awk '/total$/ { print $1 }'`"
