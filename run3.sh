@@ -4,6 +4,8 @@ orders=`seq 13`
 seqs="champer1 champer2 champer3 bruijn25 bruijn50 ford"
 generate=true
 
+generate=
+
 T="$(date +%s)"
 dir=`dirname $0`
 if [ ! -e $dir/data/3 ]; then mkdir -p $dir/data/3; fi
@@ -34,8 +36,6 @@ do
 		if [ $generate ]
 		then
 			$dir/bin/ocurrencias 3 "$dir/data/3/$seq.txt" 1000000 $i > "$dir/data/3/$seq-$i.raw"
-			$dir/bin/extract_disc.py "$dir/data/3/$seq-$i.raw" 3 $i > "$dir/data/3/$seq-$i.dat"
-			$dir/bin/extract_peak.py "$dir/data/3/$seq-$i.raw" 3 $i > "$dir/data/3/$seq-$i-peaks.dat"
 		fi
 		
 		gnuplot 2>/dev/null <<- EOF
@@ -45,27 +45,16 @@ do
 			set logscale x
 			set xtics ("3" 3, "3²" 9, "3³" 27, "3⁴" 81, "3⁵" 243, "3⁶" 729, "3⁷" 2187, "3⁸" 6561, "3⁹" 19683, "3¹⁰" 59049, "3¹¹" 177147, "3¹²" 531441)
 
-			# Note: This function binds a variable to the interval (0; min peak)
-			max = `tail $dir/data/3/$seq-$i-peaks.dat -n1 | awk '{ print $2 }'`
-			const(x) = (atan(x)+pi/2)/pi * 0.5 * max
-			const(x) = max * 1.1
-			
-			a1 = b1 = c1 = 1
-			a2 = b2 = c2 = -10
-			cotaS(n) = a1 * log(n)/n + const(a2)
-			cotaM(n) = b1 * sqrt(log(n)/n) + const(b2)
-			cotaL(n) = n<3?0: c1 * log(log(n)/log(3)) / (log(n)) + const(c2)
-			
-			fit cotaS(x) '$dir/data/3/$seq-$i-peaks.dat' via a1
-			fit cotaM(x) '$dir/data/3/$seq-$i-peaks.dat' via b1
-			fit cotaL(x) '$dir/data/3/$seq-$i-peaks.dat' via c1
-			
 			set output "$dir/graphs/3/$seq/$seq-$i.png"
-			plot '$dir/data/3/$seq-$i.dat' title 'Discrepancia' with lines, \
-			     '$dir/data/3/$seq-$i-peaks.dat' title 'Peaks' with points pointtype 7, \
-			     cotaS(x) title 'log n/n' with lines, \
-			     cotaM(x) title 'sqrt (log n /n)' with lines, \
-			     cotaL(x) title 'log log n/log n' with lines
+			plot '$dir/data/3/$seq-$i.raw' using 1:(\$2/\$1 - 1.0/$((3 ** $i))) title 'Discrepancia por defecto' with lines, \
+		     '$dir/data/3/$seq-$i.raw' using 1:(\$3/\$1 - 1.0/$((3 ** $i))) title 'Discrepancia por exceso' with lines
+
+			set yrange [0:$((3**i - 1))]
+			set ytics ("" $((3**i - 1))/3.0, "" 2*$((3**i - 1))/3.0)
+
+			set output "$dir/graphs/3/$seq-witness/$seq-$i.png"
+			plot '$dir/data/3/$seq-$i.raw' using 1:4 title 'Testigo por defecto' with points, \
+			     '$dir/data/3/$seq-$i.raw' using 1:5 title 'Testigo por exceso' with points
 		EOF
 	done
 	echo ""

@@ -4,10 +4,7 @@ orders=`seq 20`
 seqs="champer ford em"
 generate=true
 
-#orders="2"
-seqs="champer"
 generate=
-
 
 T="$(date +%s)"
 dir=`dirname $0`
@@ -28,6 +25,7 @@ fi
 for seq in $seqs
 do
 	if [ ! -e "$dir/graphs/2/$seq" ]; then mkdir "$dir/graphs/2/$seq"; fi
+	if [ ! -e "$dir/graphs/2/$seq-witness" ]; then mkdir "$dir/graphs/2/$seq-witness"; fi
 
 	echo -n "Processing $seq..."
 	for i in $orders
@@ -36,8 +34,6 @@ do
 		if [ $generate ]
 		then
 			$dir/bin/ocurrencias 2 "$dir/data/2/$seq.txt" 1000000 $i > "$dir/data/2/$seq-$i.raw"
-			$dir/bin/extract_disc.py "$dir/data/2/$seq-$i.raw" 2 $i > "$dir/data/2/$seq-$i.dat"
-			$dir/bin/extract_peak.py "$dir/data/2/$seq-$i.raw" 2 $i > "$dir/data/2/$seq-$i-peaks.dat"
 		fi
 		
 		gnuplot 2>/dev/null <<- EOF
@@ -48,27 +44,16 @@ do
 			set xtics ("2" 2, "2²" 4, "2³" 8, "2⁴" 16, "2⁵" 32, "2⁶" 64, "2⁷" 128, "2⁸" 256, "2⁹" 512, "2¹⁰" 1024, "2¹¹" 2048, \
 			           "2¹²" 4096, "2¹³" 8192, "2¹⁴" 16384, "2¹⁵" 32768, "2¹⁶" 65536, "2¹⁷" 131072, "2¹⁸" 262144, "2¹⁹" 524288)
 
-			# Note: This function binds a variable to the interval (0; min peak)
-			max = `tail $dir/data/2/$seq-$i-peaks.dat -n1 | awk '{ print $2 }'`
-			const(x) = (atan(x)+pi/2)/pi * 0.5 * max
-			const(x) = max * 1.1
-			
-			a1 = b1 = c1 = 1
-			a2 = b2 = c2 = -10
-			cotaS(n) = a1 * log(n)/n + const(a2)
-			cotaM(n) = b1 * sqrt(log(n)/n) + const(b2)
-			cotaL(n) = n<2?0: c1 * log(log(n)/log(2)) / (log(n)) + const(c2)
-
-			fit cotaS(x) '$dir/data/2/$seq-$i-peaks.dat' via a1
-			fit cotaM(x) '$dir/data/2/$seq-$i-peaks.dat' via b1
-			fit cotaL(x) '$dir/data/2/$seq-$i-peaks.dat' via c1
-			
 			set output "$dir/graphs/2/$seq/$seq-$i.png"
-			plot '$dir/data/2/$seq-$i.dat' title 'Discrepancia' with lines, \
-			     '$dir/data/2/$seq-$i-peaks.dat' title 'Peaks' with points pointtype 7, \
-			     cotaS(x) title 'log n/n' with lines, \
-			     cotaM(x) title 'sqrt (log n /n)' with lines, \
-			     cotaL(x) title 'log log n/log n' with lines
+			plot '$dir/data/2/$seq-$i.raw' using 1:(\$2/\$1 - 1.0/$((2 ** $i))) title 'Discrepancia por defecto' with lines, \
+		     '$dir/data/2/$seq-$i.raw' using 1:(\$3/\$1 - 1.0/$((2 ** $i))) title 'Discrepancia por exceso' with lines
+
+			set yrange [0:$((2**i - 1))]
+			set ytics ("" $((2**i - 1))/2.0)
+
+			set output "$dir/graphs/2/$seq-witness/$seq-$i.png"
+			plot '$dir/data/2/$seq-$i.raw' using 1:4 title 'Testigo por defecto' with points, \
+			     '$dir/data/2/$seq-$i.raw' using 1:5 title 'Testigo por exceso' with points
 		EOF
 	done
 	

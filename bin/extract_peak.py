@@ -18,8 +18,7 @@ for line in f:
     discrepancy = max( (a ** -k) - mi/i , ma/i - (a ** -k))
 
     if i > a ** curr:
-    	if curr > 3:
-            print currmax_i, currmax
+        print currmax_i, currmax
         curr += 1
         currmax = 0;
 
