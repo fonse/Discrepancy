@@ -28,6 +28,7 @@ fi
 for seq in $seqs
 do
 	if [ ! -e "$dir/graphs/3/$seq" ]; then mkdir "$dir/graphs/3/$seq"; fi
+	if [ ! -e "$dir/graphs/3/$seq-witness" ]; then mkdir "$dir/graphs/3/$seq-witness"; fi
 
 	echo -n "Processing $seq..."	
 	for i in $orders
