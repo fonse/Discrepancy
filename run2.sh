@@ -51,7 +51,7 @@ do
 			set yrange [0:$((2**i - 1))]
 			set ytics ("" $((2**i - 1))/2.0)
 
-			set output "$dir/graphs/2/$seq-witness/$seq-$i.png"
+			set output "$dir/graphs/2/$seq-witness/$seq-witness-$i.png"
 			plot '$dir/data/2/$seq-$i.raw' using 1:4 title 'Testigo por defecto' with points, \
 			     '$dir/data/2/$seq-$i.raw' using 1:5 title 'Testigo por exceso' with points
 		EOF

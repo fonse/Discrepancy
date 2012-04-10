@@ -53,7 +53,7 @@ do
 			set yrange [0:$((3**i - 1))]
 			set ytics ("" $((3**i - 1))/3.0, "" 2*$((3**i - 1))/3.0)
 
-			set output "$dir/graphs/3/$seq-witness/$seq-$i.png"
+			set output "$dir/graphs/3/$seq-witness/$seq-witness-$i.png"
 			plot '$dir/data/3/$seq-$i.raw' using 1:4 title 'Testigo por defecto' with points, \
 			     '$dir/data/3/$seq-$i.raw' using 1:5 title 'Testigo por exceso' with points
 		EOF
