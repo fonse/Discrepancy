@@ -24,8 +24,8 @@ do
 		set terminal png
 
 		set grid
-		set logscale x
-	    set xtics ("3" 3, "3²" 9, "3³" 27, "3⁴" 81, "3⁵" 243, "3⁶" 729, "3⁷" 2187, "3⁸" 6561, "3⁹" 19683, "3¹⁰" 59049, "3¹¹" 177147, "3¹²" 531441)
+		set logscale y
+		set format x ""
 
 	    set output "$dir/graphs/3/compare-$title/compare-$title-$i.png"
 		plot '$dir/data/3/champer1-$i-peaks.dat' title 'Champwenowne 1' with lines, \

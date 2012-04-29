@@ -9,7 +9,6 @@ except:
     print "No se pudo leer el archivo"
     exit(1)
 
-curr = 1
 currmax = 0
 currmax_i = 0
 for line in f:
@@ -17,13 +16,10 @@ for line in f:
     i, mi, ma = int(i), float(mi), float(ma)
     discrepancy = max( (a ** -k) - mi/i , ma/i - (a ** -k))
 
-    if i > a ** curr:
-        print currmax_i, currmax
-        curr += 1
-        currmax = 0;
-
     if discrepancy > currmax:
         currmax = discrepancy
         currmax_i = i
 
-print currmax_i, currmax
+    if i % 1000 == 0:
+        print currmax_i, currmax
+        currmax = 0
