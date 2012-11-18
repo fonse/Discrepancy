@@ -17,9 +17,9 @@ if [ ! -e $dir/bin/ocurrencias ]; then  g++ $dir/lib/ocurrencias.cpp -o $dir/bin
 if [ $generate ]
 then
 	echo "Generating sequences..."
-	$dir/bin/champer3.py 1000000 1 > $dir/data/3/champer1.txt
-	$dir/bin/champer3.py 1000000 2 > $dir/data/3/champer2.txt
-	$dir/bin/champer3.py 1000000 3 > $dir/data/3/champer3.txt
+	$dir/bin/champer3.py 1000000 0 > $dir/data/3/champer1.txt
+	$dir/bin/champer3.py 1000000 1 > $dir/data/3/champer2.txt
+	$dir/bin/champer3.py 1000000 2 > $dir/data/3/champer3.txt
 	$dir/bin/extford3 1000000 25 > $dir/data/3/bruijn25.txt
 	$dir/bin/extford3 1000000 50 > $dir/data/3/bruijn50.txt
 	$dir/bin/extford3 1000000 > $dir/data/3/ford.txt
